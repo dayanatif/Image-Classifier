@@ -21,6 +21,7 @@ def init_messages() -> None:
 
 def get_answer(user_input) -> str:
     response = api(inputs=user_input)
+    st.write(response)  # Debugging: Show the entire response
     return response.get('generated_text', 'Sorry, no response.')
 
 def main() -> None:
