@@ -29,17 +29,27 @@ model = make_pipeline(CountVectorizer(), MultinomialNB())
 model.fit(X_train, y_train)
 
 # Streamlit app layout
-st.title("Sentiment Analysis App")
-st.write("Enter a sentence to analyze its sentiment:")
+st.title("Sentiment Analysis App 😃")
+st.write("Enter a sentence to analyze its sentiment 📝:")
 
 # User input
 user_input = st.text_area("Your text here:")
 
 # Prediction
-if st.button("Analyze Sentiment"):
+if st.button("Analyze Sentiment 🤖"):
     if user_input:
         prediction = model.predict([user_input])
-        st.write(f"The sentiment of the input text is: **{prediction[0].capitalize()}**")
+        sentiment = prediction[0].capitalize()
+        
+        # Add emoji based on sentiment
+        if sentiment == "Positive":
+            emoji = "😊"  # Smiling face
+        elif sentiment == "Negative":
+            emoji = "😞"  # Sad face
+        else:
+            emoji = "😐"  # Neutral face
+
+        st.write(f"The sentiment of the input text is: **{sentiment} {emoji}**")
     else:
         st.write("Please enter some text for analysis.")
 
