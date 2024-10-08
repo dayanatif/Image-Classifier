@@ -1,58 +1,34 @@
 import streamlit as st
+from PIL import Image
 import numpy as np
-import pandas as pd
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.naive_bayes import MultinomialNB
-from sklearn.pipeline import make_pipeline
-from sklearn.model_selection import train_test_split
-import nltk
-from nltk.corpus import movie_reviews
+from tensorflow.keras.applications import MobileNetV2
+from tensorflow.keras.applications.mobilenet_v2 import preprocess_input, decode_predictions
 
-# Download movie reviews dataset
-nltk.download('movie_reviews')
-
-# Load movie reviews data
-documents = [(list(movie_reviews.words(fileid)), category)
-             for category in movie_reviews.categories()
-             for fileid in movie_reviews.fileids(category)]
-np.random.shuffle(documents)
-
-# Prepare the dataset
-X = [" ".join(doc) for doc, category in documents]
-y = [category for doc, category in documents]
-
-# Split the data
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-# Create a pipeline for vectorization and model
-model = make_pipeline(CountVectorizer(), MultinomialNB())
-model.fit(X_train, y_train)
+# Load the pre-trained MobileNetV2 model
+model = MobileNetV2(weights='imagenet')
 
 # Streamlit app layout
-st.title("Sentiment Analysis App 😃")
-st.write("Enter a sentence to analyze its sentiment 📝:")
+st.title("Image Classifier App 📷")
+st.write("Upload an image to classify it!")
 
 # User input
-user_input = st.text_area("Your text here:")
+uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "png", "jpeg"])
 
-# Prediction
-if st.button("Analyze Sentiment 🤖"):
-    if user_input:
-        prediction = model.predict([user_input])
-        sentiment = prediction[0].capitalize()
-        
-        # Add emoji based on sentiment
-        if sentiment == "Positive":
-            emoji = "😊"  # Smiling face
-        elif sentiment == "Negative":
-            emoji = "😞"  # Sad face
-        else:
-            emoji = "😐"  # Neutral face
+if uploaded_file is not None:
+    # Open and display the image
+    image = Image.open(uploaded_file)
+    st.image(image, caption='Uploaded Image', use_column_width=True)
+    
+    # Preprocess the image
+    image = image.resize((224, 224))
+    img_array = np.array(image)
+    img_array = np.expand_dims(img_array, axis=0)
+    img_array = preprocess_input(img_array)
 
-        st.write(f"The sentiment of the input text is: **{sentiment} {emoji}**")
-    else:
-        st.write("Please enter some text for analysis.")
-
-# Additional information
-st.write("### How it works")
-st.write("This app uses a Naive Bayes classifier trained on movie reviews to determine the sentiment of the input text.")
+    # Make predictions
+    predictions = model.predict(img_array)
+    labels = decode_predictions(predictions)
+    
+    # Display the top prediction
+    st.write("Predicted:", labels[0][0][1])  # Show class label
+    st.write("Confidence:", round(labels[0][0][2] * 100, 2), "%")  # Show confidence percentage
