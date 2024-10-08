@@ -1,47 +1,48 @@
 import streamlit as st
-from huggingface_hub import InferenceApi
+import numpy as np
+import pandas as pd
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.pipeline import make_pipeline
+from sklearn.model_selection import train_test_split
+import nltk
+from nltk.corpus import movie_reviews
 
-# Get API token from Streamlit secrets
-API_TOKEN = st.secrets["HF_API_KEY"]
+# Download movie reviews dataset
+nltk.download('movie_reviews')
 
-# Initialize the Inference API
-api = InferenceApi(repo_id="bigscience/bloom", token=API_TOKEN)
+# Load movie reviews data
+documents = [(list(movie_reviews.words(fileid)), category)
+             for category in movie_reviews.categories()
+             for fileid in movie_reviews.fileids(category)]
+np.random.shuffle(documents)
 
-def init_page() -> None:
-    st.set_page_config(page_title="Personal Chatbot")
-    st.header("Personal Chatbot")
-    st.sidebar.title("Options")
+# Prepare the dataset
+X = [" ".join(doc) for doc, category in documents]
+y = [category for doc, category in documents]
 
-def init_messages() -> None:
-    clear_button = st.sidebar.button("Clear Conversation", key="clear")
-    if clear_button or "messages" not in st.session_state:
-        st.session_state.messages = [
-            {"role": "system", "content": "You are a helpful AI assistant. Reply your answer in markdown format."}
-        ]
+# Split the data
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-def get_answer(user_input) -> str:
-    response = api(inputs=user_input)
-    st.write(response)  # Debugging: Show the entire response
-    return response.get('generated_text', 'Sorry, no response.')
+# Create a pipeline for vectorization and model
+model = make_pipeline(CountVectorizer(), MultinomialNB())
+model.fit(X_train, y_train)
 
-def main() -> None:
-    init_page()
-    init_messages()
+# Streamlit app layout
+st.title("Sentiment Analysis App")
+st.write("Enter a sentence to analyze its sentiment:")
 
-    if user_input := st.chat_input("Input your question!"):
-        st.session_state.messages.append({"role": "user", "content": user_input})
-        with st.spinner("Bot is typing ..."):
-            answer = get_answer(user_input)
-        st.session_state.messages.append({"role": "assistant", "content": answer})
+# User input
+user_input = st.text_area("Your text here:")
 
-    messages = st.session_state.get("messages", [])
-    for message in messages:
-        if message["role"] == "assistant":
-            with st.chat_message("assistant"):
-                st.markdown(message["content"])
-        elif message["role"] == "user":
-            with st.chat_message("user"):
-                st.markdown(message["content"])
+# Prediction
+if st.button("Analyze Sentiment"):
+    if user_input:
+        prediction = model.predict([user_input])
+        st.write(f"The sentiment of the input text is: **{prediction[0].capitalize()}**")
+    else:
+        st.write("Please enter some text for analysis.")
 
-if __name__ == "__main__":
-    main()
+# Additional information
+st.write("### How it works")
+st.write("This app uses a Naive Bayes classifier trained on movie reviews to determine the sentiment of the input text.")
