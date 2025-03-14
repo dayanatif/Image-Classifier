@@ -4,7 +4,7 @@ A simple **image classification app** built using **Streamlit** and **MobileNetV
 
 ---
 
-## **Features**  
+## **Features** 
 ✔ **Upload Images** – Supports JPG, PNG, and JPEG formats.  
 ✔ **Deep Learning Model** – Uses **MobileNetV2** for classification.  
 ✔ **Instant Predictions** – Provides real-time class label and confidence score.  
