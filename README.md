@@ -12,9 +12,9 @@ A simple **image classification app** built using **Streamlit** and **MobileNetV
 
 ---
 
-## **Installation** 
+## **Installation**
 
-### **Prerequisites**  
+### **Prerequisites**
 Ensure you have Python installed. Then, install the required dependencies:  
 
 ```sh
