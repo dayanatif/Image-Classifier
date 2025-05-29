@@ -1,6 +1,6 @@
 # **Image Classifier App 📷**  
 
-A simple **image classification app** built using **Streamlit** and **MobileNetV2**. The app allows users to **upload an image** and predicts the most likely class along with its confidence score.  
+A simple **image classification app** built using **Streamlit** and **MobileNetV2**. The app allows users to **upload an image** and predicts the most likely class along with its confidence score. 
 
 ---
 
