@@ -29,6 +29,6 @@ if uploaded_file is not None:
     predictions = model.predict(img_array)
     labels = decode_predictions(predictions)
     
-    # Display the top prediction
-    st.write("Predicted:", labels[0][0][1])  # Show class label
-    st.write("Confidence:", round(labels[0][0][2] * 100, 2), "%")  # Show confidence percentage
+
+    st.write("Predicted:", labels[0][0][1])  
+    st.write("Confidence:", round(labels[0][0][2] * 100, 2), "%")  
